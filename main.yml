@@ -1,0 +1,58 @@
+---
+- hosts: localhost
+  connection: local
+  become: yes
+  
+  tasks:
+  - name: Configure SSH
+    lineinfile:
+      dest: /etc/ssh/sshd_config
+      line: "UseDNS no"
+      regexp: "^UseDNS"
+      state: present
+      
+  - name:  Create admin_user authorized key
+    authorized_key:
+      key: https://github.com/mitchellh/vagrant/raw/master/keys/vagrant.pub
+      user: vagrant
+      state: present
+    
+  - name: Package required to make guest additions
+    yum:
+      name: "{{item}}"
+      state: present
+    loop:
+      - make
+      - gcc
+      - kernel-headers
+      - kernel-devel
+      - perl
+      - dkms
+      - bzip2
+
+  - name: Mount guest additions
+    mount:
+      name: /tmp/guest_additions
+      src: /home/vagrant/VBoxGuestAdditions.iso
+      opts: loop
+      state: mounted
+      fstype: iso9660
+    
+  - name: install virtualbox guest additions
+    shell: sh /tmp/guest_additions/VBoxLinuxAdditions.run
+    ignore_errors: yes
+    
+  - name: Unmount guest additions
+    mount:
+      name: /tmp/guest_additions
+      src: /home/vagrant/VBoxGuestAdditions.iso
+      state: absent
+      fstype: iso9660
+ 
+  - name: Cleanup files
+    file:
+      path: "{{item}}"
+      state: absent
+    loop:
+      - /home/vagrant/VBoxGuestAdditions.iso
+      - /home/vagrant/.vbox_version
