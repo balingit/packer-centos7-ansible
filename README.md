@@ -9,6 +9,9 @@ Packer is usued.
 - [Vagrant](http://vagrantup.com/)
 - [VirtualBox](https://www.virtualbox.org/)
 
+Set the installer_iso variable to the downloaded iso image or the http mirror location of the iso image.
+Also, set the istaller_checksum variable. This can be found on the mirror site with filename sha256sum.txt.
+
 ## Build instruction
 
 	$ packer build centos7.json

@@ -1,10 +1,12 @@
 {
   "variables":
   {
-    "installer_iso": "../Downloads/CentOS-7-x86_64-DVD-1804.iso",
-	"installer_checksum": "660aab9894136872770ecb6e1e370c08",	
+	"installer_iso": "../Downloads/CentOS-7-x86_64-DVD-1804.iso",
+	"installer_checksum": "506e4e06abf778c3435b4e5745df13e79ebfc86565d7ea1e128067ef6b5a6345",
+	"installer_checksum_type": "sha256",
 	"disk_size": "8192",
-	"box_basename": "centos7"
+	"box_basename": "centos7",
+	"memory": "1024"
   },
   "builders":[
     {
@@ -12,16 +14,29 @@
 	  "guest_os_type": "RedHat_64",
 	  "iso_url": "{{user `installer_iso`}}",
 	  "iso_checksum": "{{user `installer_checksum`}}",
-	  "iso_checksum_type": "md5",	  
+	  "iso_checksum_type": "{{ user `installer_checksum_type`}}",	  
 	  "disk_size": "{{ user `disk_size`}}",
 	  "hard_drive_interface": "sata",
 	  "ssh_username": "vagrant",
 	  "ssh_password": "vagrant",
 	  "ssh_timeout": "10000s",
 	  "shutdown_command": "echo 'vagrant' | sudo -S /sbin/halt -h -p",
-	  "http_directory": "http",	  
-	  "boot_command":
-	  [
+	  "http_directory": "http",
+	  "vboxmanage":[
+	    [
+		  "modifyvm",
+		  "{{.Name}}",
+		  "--memory",
+		  "{{user `memory`}}"
+	    ],
+	    [
+		  "modifyvm",
+		  "{{.Name}}",
+		  "--audio",
+		  "none"
+	    ]
+	  ],
+	  "boot_command":[
 	    "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
 	  ]
     }
@@ -45,6 +60,7 @@
   "post-processors":[
     {
 	  "type": "vagrant",
+	  "keep_input_artifact": false,
 	  "output": "{{user `box_basename`}}.{{.Provider}}.box"
 	}
   ]

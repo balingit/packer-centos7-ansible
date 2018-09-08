@@ -1,2 +1,4 @@
 centos7.virtualbox.box
 packer_cache
+output-virtualbox-iso
+.vagrant
